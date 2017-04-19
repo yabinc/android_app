@@ -1,0 +1,67 @@
+apply plugin: 'com.android.model.application'
+
+model {
+    repositories {
+        libs(PrebuiltLibraries) {
+            inplace_sampler_server {
+                binaries.withType(SharedLibraryBinary) {
+                    sharedLibraryFile = file("src/main/libs/armeabi/libsimpleperf_inplace_sampler.so")
+                    //sharedLibraryFile = file("src/main/libs/armeabi/wrap.sh")
+                }
+            }
+        }
+    }
+
+    android.sources {
+        main {
+            jniLibs {
+                dependencies {
+                    library "inplace_sampler_server"
+                }
+            }
+        }
+    }
+
+    android {
+        compileSdkVersion 23
+        buildToolsVersion "23.0.2"
+
+        defaultConfig {
+            applicationId "com.example.sudogame"
+            minSdkVersion.apiLevel 22
+            targetSdkVersion.apiLevel 23
+            versionCode 1
+            versionName "1.0"
+        }
+        buildTypes {
+            release {
+                minifyEnabled false
+                proguardFiles.add(file('proguard-android.txt'))
+            }
+        }
+        ndk {
+            moduleName "sudo-game-jni"
+            stl "stlport_shared"
+        }
+
+        productFlavors {
+            create("arm") {
+                ndk {
+                    // You can customize the NDK configurations for each
+                    // productFlavors and buildTypes.
+                    abiFilters.add("armeabi-v7a")
+                }
+            }
+        }
+    }
+
+    android.ndk {
+        ldLibs.addAll(["log"])
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:23.4.0'
+}
